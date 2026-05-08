@@ -1,0 +1,17 @@
+# Wrangler build / state cache
+.wrangler/
+
+# Dependency artifacts
+node_modules/
+
+# OS / file-system noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+
+# Logs
+*.log
