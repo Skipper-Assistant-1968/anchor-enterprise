@@ -754,6 +754,20 @@ h1, h2, h3, h4 {
     text-decoration: none;
 }
 
+/* --- About Photo --- */
+.about-photo {
+    margin-bottom: 2rem;
+}
+
+.headshot {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center top;
+    border: 2px solid var(--border);
+}
+
 /* --- Credentials --- */
 .credentials {
     display: grid;
@@ -1676,3 +1690,4 @@ h1, h2, h3, h4 {
         padding: 24px;
     }
 }
+
