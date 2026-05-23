@@ -1,0 +1,137 @@
+const REQUIRED_FIELDS = ['full_name', 'email', 'company'];
+
+function jsonResponse(body, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': 'no-store',
+    },
+  });
+}
+
+function clean(value) {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function getClientIp(request) {
+  return request.headers.get('cf-connecting-ip') || request.headers.get('x-forwarded-for') || '';
+}
+
+async function hmacHex(secret, payload) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(payload));
+  return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function parseRequest(request) {
+  const contentType = request.headers.get('content-type') || '';
+  if (contentType.includes('application/json')) {
+    return await request.json();
+  }
+  const form = await request.formData();
+  return Object.fromEntries(form.entries());
+}
+
+function normalizeSubmission(data, request) {
+  const now = new Date().toISOString();
+  const landingPage = clean(data.landing_page) || request.headers.get('referer') || '';
+  const payload = {
+    source_type: 'website_form',
+    source_ref: clean(data.source_ref),
+    form_id: clean(data.form_id) || 'unknown-website-form',
+    campaign_id: clean(data.campaign_id) || 'briefing-ai-readiness-v1',
+    full_name: clean(data.full_name || data.name),
+    email: clean(data.email).toLowerCase(),
+    company: clean(data.company),
+    title: clean(data.title || data.role),
+    message: clean(data.message || data.notes || data.summary),
+    landing_page: landingPage,
+    referrer: clean(data.referrer),
+    utm_source: clean(data.utm_source),
+    utm_medium: clean(data.utm_medium),
+    utm_campaign: clean(data.utm_campaign),
+    utm_content: clean(data.utm_content),
+    consent: clean(data.consent) || 'yes',
+    received_at: now,
+    user_agent_family: request.headers.get('user-agent') ? 'present' : '',
+    visitor_country: request.cf && request.cf.country ? request.cf.country : '',
+  };
+
+  if (!payload.message) {
+    payload.message = `Requested ${payload.form_id} from ${payload.landing_page}`;
+  }
+
+  // Leave source_ref blank unless the caller provides a stable ID. The ai-box
+  // importer derives a duplicate-safe source_ref from email/name/company/message/date.
+  return payload;
+}
+
+function validate(payload, rawData) {
+  if (clean(rawData.website)) {
+    return 'bot-honeypot';
+  }
+  for (const field of REQUIRED_FIELDS) {
+    if (!payload[field]) {
+      return `Missing required field: ${field}`;
+    }
+  }
+  if (!payload.email.includes('@')) {
+    return 'Please provide a valid work email address.';
+  }
+  if (payload.consent !== 'yes' && payload.consent !== 'on' && payload.consent !== 'true') {
+    return 'Consent is required to submit this form.';
+  }
+  return '';
+}
+
+export async function onRequestPost({ request, env }) {
+  let data;
+  try {
+    data = await parseRequest(request);
+  } catch (err) {
+    return jsonResponse({ ok: false, error: 'Could not parse form submission.' }, 400);
+  }
+
+  const payload = normalizeSubmission(data, request);
+  const validationError = validate(payload, data);
+  if (validationError === 'bot-honeypot') {
+    return jsonResponse({ ok: true, queued: true });
+  }
+  if (validationError) {
+    return jsonResponse({ ok: false, error: validationError }, 400);
+  }
+
+  if (!env.ANCHOR_LEAD_WEBHOOK_URL) {
+    return jsonResponse({ ok: false, error: 'Lead intake is not configured yet.' }, 503);
+  }
+
+  const body = JSON.stringify(payload);
+  const headers = { 'content-type': 'application/json' };
+  if (env.ANCHOR_LEAD_WEBHOOK_SECRET) {
+    headers['x-anchor-signature-sha256'] = await hmacHex(env.ANCHOR_LEAD_WEBHOOK_SECRET, body);
+  }
+
+  const upstream = await fetch(env.ANCHOR_LEAD_WEBHOOK_URL, {
+    method: 'POST',
+    headers,
+    body,
+  });
+
+  if (!upstream.ok) {
+    return jsonResponse({ ok: false, error: 'Lead intake is temporarily unavailable.' }, 502);
+  }
+
+  return jsonResponse({ ok: true, queued: true });
+}
+
+export async function onRequestGet() {
+  return jsonResponse({ ok: false, error: 'Use POST.' }, 405);
+}

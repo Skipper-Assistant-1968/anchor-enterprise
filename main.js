@@ -70,4 +70,94 @@
             }
         });
     });
+
+    // --- Revenue analytics event hooks ---
+    function trackEvent(name, props) {
+        const payload = Object.assign({ path: window.location.pathname }, props || {});
+        if (typeof window.plausible === 'function') {
+            window.plausible(name, { props: payload });
+        }
+        window.dispatchEvent(new CustomEvent('anchor:analytics', { detail: { name, props: payload } }));
+    }
+
+    function datasetProps(el) {
+        const props = {};
+        Object.keys(el.dataset || {}).forEach((key) => {
+            if (key.startsWith('trackProp')) {
+                const propName = key.replace('trackProp', '').replace(/^./, (c) => c.toLowerCase());
+                props[propName] = el.dataset[key];
+            }
+        });
+        return props;
+    }
+
+    document.querySelectorAll('[data-track-event]').forEach((el) => {
+        el.addEventListener('click', () => {
+            trackEvent(el.dataset.trackEvent, datasetProps(el));
+        });
+    });
+
+    document.querySelectorAll('a[href^="mailto:"]').forEach((el) => {
+        if (!el.dataset.trackEvent) {
+            el.addEventListener('click', () => trackEvent('email_click', { cta: 'mailto' }));
+        }
+    });
+
+    document.querySelectorAll('a[href^="tel:"]').forEach((el) => {
+        if (!el.dataset.trackEvent) {
+            el.addEventListener('click', () => trackEvent('phone_click', { cta: 'tel' }));
+        }
+    });
+
+    document.querySelectorAll('a[href*="calendar.app.google"]').forEach((el) => {
+        if (!el.dataset.trackEvent) {
+            el.addEventListener('click', () => trackEvent('book_call_click', { cta: 'calendar' }));
+        }
+    });
+
+    // --- Lead capture forms ---
+    const params = new URLSearchParams(window.location.search);
+    document.querySelectorAll('form[data-lead-form]').forEach((form) => {
+        const status = form.querySelector('[data-form-status]');
+        const setHidden = (name, value) => {
+            const input = form.querySelector(`input[name="${name}"]`);
+            if (input) input.value = value || '';
+        };
+        setHidden('landing_page', window.location.href);
+        setHidden('referrer', document.referrer);
+        ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'].forEach((name) => {
+            setHidden(name, params.get(name));
+        });
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const button = form.querySelector('button[type="submit"]');
+            const formData = new FormData(form);
+            const formId = formData.get('form_id') || 'unknown';
+            trackEvent('lead_form_submit', { formId: String(formId) });
+            if (button) button.disabled = true;
+            if (status) status.textContent = 'Sending request...';
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { accept: 'application/json' },
+                });
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok || result.ok === false) {
+                    throw new Error(result.error || 'The request could not be sent.');
+                }
+                form.reset();
+                trackEvent('lead_form_success', { formId: String(formId) });
+                if (status) status.textContent = 'Request received. Anchor will follow up shortly.';
+            } catch (err) {
+                trackEvent('lead_form_error', { formId: String(formId) });
+                if (status) status.textContent = 'The form is temporarily unavailable. Please email clark@anchor-enterprise.com.';
+            } finally {
+                if (button) button.disabled = false;
+            }
+        });
+    });
+
 })();

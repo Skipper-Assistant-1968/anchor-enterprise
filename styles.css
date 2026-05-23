@@ -1691,3 +1691,155 @@ h1, h2, h3, h4 {
     }
 }
 
+
+
+/* --- Lead capture / lead magnet pages --- */
+.lead-magnet-page {
+    background: var(--bg-cream);
+    min-height: 100vh;
+}
+
+.lead-magnet-hero {
+    padding-top: 140px;
+}
+
+.lead-magnet-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 460px);
+    gap: clamp(36px, 6vw, 72px);
+    align-items: start;
+}
+
+.lead-magnet-copy .hero-title {
+    font-size: clamp(2.7rem, 6vw, 4.8rem);
+    max-width: 760px;
+}
+
+.lead-magnet-copy .hero-sub {
+    max-width: 660px;
+}
+
+.lead-magnet-points {
+    margin: 28px 0 0;
+    padding-left: 22px;
+    color: var(--text-secondary);
+}
+
+.lead-magnet-points li {
+    margin-bottom: 10px;
+    line-height: 1.55;
+}
+
+.lead-form-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: clamp(28px, 4vw, 40px);
+    box-shadow: 0 14px 40px rgba(26, 37, 64, 0.08);
+}
+
+.lead-form-card .cta-eyebrow {
+    display: block;
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent-dim);
+    margin-bottom: 12px;
+}
+
+.lead-form-card h2 {
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+}
+
+.lead-form-card p {
+    font-size: 0.96rem;
+    line-height: 1.6;
+    margin-bottom: 22px;
+    color: var(--text-secondary);
+}
+
+.lead-form {
+    display: grid;
+    gap: 16px;
+}
+
+.form-field {
+    display: grid;
+    gap: 7px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--text-primary);
+}
+
+.form-field input,
+.form-field textarea {
+    width: 100%;
+    font: inherit;
+    font-size: 0.98rem;
+    color: var(--text-primary);
+    background: var(--bg-cream);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-field textarea {
+    resize: vertical;
+    min-height: 110px;
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+    border-color: var(--accent-dim);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.form-field--trap {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.form-consent {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: var(--text-tertiary);
+}
+
+.form-consent input {
+    margin-top: 3px;
+    accent-color: var(--accent-dim);
+}
+
+.form-status {
+    min-height: 1.4em;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+button[disabled] {
+    cursor: wait;
+    opacity: 0.7;
+}
+
+@media (max-width: 900px) {
+    .lead-magnet-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .lead-magnet-hero {
+        padding-top: 112px;
+    }
+}
