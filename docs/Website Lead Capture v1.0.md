@@ -20,9 +20,10 @@ LinkedIn / referral / search traffic
 
 ## What this version implements
 
-1. **Privacy-conscious analytics readiness**
-   - Adds Plausible-compatible script tags for `anchor-enterprise.com`.
+1. **Analytics readiness**
+   - Adds Google Analytics 4 tag `G-DP552GE7VP` for `anchor-enterprise.com`.
    - Adds first-party event hooks through `main.js`.
+   - Forwards revenue events to GA4 as custom events while preserving local `anchor:analytics` browser events.
    - Tracks CTA clicks without identifying anonymous visitors.
 
 2. **Lower-friction lead capture**

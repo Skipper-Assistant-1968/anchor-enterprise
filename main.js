@@ -74,6 +74,12 @@
     // --- Revenue analytics event hooks ---
     function trackEvent(name, props) {
         const payload = Object.assign({ path: window.location.pathname }, props || {});
+        if (typeof window.gtag === 'function') {
+            window.gtag('event', name, Object.assign({
+                event_category: 'anchor_revenue',
+                page_path: window.location.pathname,
+            }, payload));
+        }
         if (typeof window.plausible === 'function') {
             window.plausible(name, { props: payload });
         }
