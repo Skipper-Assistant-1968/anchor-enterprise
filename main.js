@@ -186,8 +186,9 @@
                 trackEvent('lead_form_success', { formId: String(formId) });
                 if (status && result.download_url) {
                     const downloadUrl = new URL(result.download_url, window.location.href).toString();
-                    trackEvent('lead_magnet_delivery_ready', { formId: String(formId) });
-                    status.innerHTML = 'Request received. <a href="' + downloadUrl + '">Open the AI Proof Gap Checklist</a>.';
+                    trackEvent('lead_magnet_delivery_ready', { formId: String(formId), emailSent: Boolean(result.email_sent) });
+                    const emailNote = result.email_sent ? ' I also emailed a copy to you.' : '';
+                    status.innerHTML = 'Request received.' + emailNote + ' <a href="' + downloadUrl + '">Open the AI Proof Gap Checklist</a>.';
                 } else if (status) {
                     status.textContent = 'Request received. Anchor will follow up shortly.';
                 }

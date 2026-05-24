@@ -92,6 +92,47 @@ function validate(payload, rawData) {
   return '';
 }
 
+function checklistUrl(request) {
+  return new URL('/ai-proof-gap-checklist-download.html', request.url).toString();
+}
+
+async function sendChecklistEmail(payload, request, env) {
+  if (!env.RESEND_API_KEY || payload.form_id !== 'ai-proof-gap-checklist') {
+    return false;
+  }
+
+  const url = checklistUrl(request);
+  const from = env.ANCHOR_TRANSACTIONAL_FROM || 'Anchor Enterprise <clark@anchor-enterprise.com>';
+  const subject = 'Your AI Proof Gap Checklist';
+  const text = `Hi ${payload.full_name || 'there'},\n\nHere is the AI Proof Gap Checklist:\n${url}\n\nUse it to pressure-test one AI use case against ownership, risk, workforce readiness, and business value proof.\n\nIf you want a senior-peer read on your answers, book a 20-minute call: https://calendar.app.google/hUtfPcRYZ8Zdm6JH6\n\n— Anchor Enterprise`;
+  const html = `
+    <p>Hi ${payload.full_name || 'there'},</p>
+    <p>Here is the AI Proof Gap Checklist:</p>
+    <p><a href="${url}">Open the AI Proof Gap Checklist</a></p>
+    <p>Use it to pressure-test one AI use case against ownership, risk, workforce readiness, and business value proof.</p>
+    <p>If you want a senior-peer read on your answers, <a href="https://calendar.app.google/hUtfPcRYZ8Zdm6JH6">book a 20-minute call</a>.</p>
+    <p>— Anchor Enterprise</p>
+  `;
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      from,
+      to: payload.email,
+      subject,
+      text,
+      html,
+      reply_to: 'clark@anchor-enterprise.com',
+    }),
+  });
+
+  return response.ok;
+}
+
 export async function onRequestPost({ request, env }) {
   let data;
   try {
@@ -135,6 +176,7 @@ export async function onRequestPost({ request, env }) {
   const response = { ok: true, queued: true };
   if (payload.form_id === 'ai-proof-gap-checklist') {
     response.download_url = '/ai-proof-gap-checklist-download.html';
+    response.email_sent = await sendChecklistEmail(payload, request, env);
   }
   return jsonResponse(response);
 }

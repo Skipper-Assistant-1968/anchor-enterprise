@@ -92,6 +92,8 @@ Before considering the form live, configure these Cloudflare Pages environment v
 ```text
 ANCHOR_LEAD_WEBHOOK_URL      required for live intake
 ANCHOR_LEAD_WEBHOOK_SECRET   optional; used for HMAC signature header
+RESEND_API_KEY               optional; sends checklist email after successful queueing
+ANCHOR_TRANSACTIONAL_FROM    optional; default sender is Anchor Enterprise <clark@anchor-enterprise.com>
 ```
 
 The webhook receiver on ai-box should pipe the JSON body into:
