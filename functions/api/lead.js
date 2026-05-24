@@ -132,7 +132,11 @@ export async function onRequestPost({ request, env }) {
     return jsonResponse({ ok: false, error: 'Lead intake is temporarily unavailable.' }, 502);
   }
 
-  return jsonResponse({ ok: true, queued: true });
+  const response = { ok: true, queued: true };
+  if (payload.form_id === 'ai-proof-gap-checklist') {
+    response.download_url = '/ai-proof-gap-checklist-download.html';
+  }
+  return jsonResponse(response);
 }
 
 export async function onRequestGet() {

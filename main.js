@@ -184,7 +184,13 @@
                 }
                 form.reset();
                 trackEvent('lead_form_success', { formId: String(formId) });
-                if (status) status.textContent = 'Request received. Anchor will follow up shortly.';
+                if (status && result.download_url) {
+                    const downloadUrl = new URL(result.download_url, window.location.href).toString();
+                    trackEvent('lead_magnet_delivery_ready', { formId: String(formId) });
+                    status.innerHTML = 'Request received. <a href="' + downloadUrl + '">Open the AI Proof Gap Checklist</a>.';
+                } else if (status) {
+                    status.textContent = 'Request received. Anchor will follow up shortly.';
+                }
             } catch (err) {
                 trackEvent('lead_form_error', { formId: String(formId) });
                 trackEvent('lead_form_mailto_fallback', { formId: String(formId) });

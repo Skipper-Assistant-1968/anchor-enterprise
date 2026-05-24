@@ -37,6 +37,7 @@ LinkedIn / referral / search traffic
    - Blocks bot honeypot submissions.
    - Forwards the normalized lead payload to an ai-box/Hermes webhook when `ANCHOR_LEAD_WEBHOOK_URL` is configured.
    - Optionally signs the forwarded payload with `ANCHOR_LEAD_WEBHOOK_SECRET` using Anchor, generic webhook, and GitHub-compatible HMAC headers.
+   - Returns a checklist download URL for `ai-proof-gap-checklist` after successful queueing, so visitors receive the asset immediately instead of waiting for manual email follow-up.
    - If the backend path is unavailable, the browser falls back to a prefilled email to avoid losing a motivated prospect.
 
 4. **Lead-ops mapping**
@@ -54,6 +55,7 @@ service_click
 lead_magnet_click
 lead_form_submit
 lead_form_success
+lead_magnet_delivery_ready
 lead_form_error
 lead_form_mailto_fallback
 ```
