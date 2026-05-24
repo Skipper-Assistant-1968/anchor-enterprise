@@ -132,7 +132,7 @@ async function checklistAttachment(request) {
   }
   const content = arrayBufferToBase64(await response.arrayBuffer());
   return {
-    filename: 'AI Proof Gap Checklist - Anchor Enterprise.pdf',
+    filename: 'AI Pilot-to-Business-Case Checklist - Anchor Enterprise.pdf',
     content,
   };
 }
@@ -147,16 +147,16 @@ async function sendChecklistEmail(payload, request, env) {
   const greetingName = firstName(payload.full_name);
   const greetingNameHtml = escapeHtml(greetingName);
   const from = env.ANCHOR_TRANSACTIONAL_FROM || 'Clark Schnase <clark@anchor-enterprise.com>';
-  const subject = 'Your AI Proof Gap Checklist';
-  const text = `Hi ${greetingName},\n\nHere is the AI Proof Gap Checklist:\n${url}\n\nI attached a clean PDF version as well. Use it on one AI initiative, not your whole portfolio.\n\nThe useful part is not the score. It is the conversation it forces: who owns the risk, what proof would satisfy the business, and where the plan is still running on assumptions.\n\nIf your answers expose a gap between the pilot and the business case, that is the right time to slow down and fix the operating model before the spend gets larger.\n\nIf you want a second read, book 45 minutes here:\nhttps://calendar.app.google/hUtfPcRYZ8Zdm6JH6\n\nClark Schnase\nAnchor Enterprise · Executive AI Coaching\nclark@anchor-enterprise.com · anchor-enterprise.com`;
+  const subject = 'Your AI Pilot-to-Business-Case Checklist';
+  const text = `Hi ${greetingName},\n\nHere is the AI Pilot-to-Business-Case Checklist:\n${url}\n\nI attached a clean PDF version as well. Use it on one AI initiative, not your whole portfolio.\n\nThe score matters less than the conversation the questions force: who owns the risk, what proof would satisfy the business, and where the plan is still running on assumptions.\n\nIf your answers expose a gap between the pilot and the business case, that is the right time to slow down and fix the operating model before the spend gets larger.\n\nIf you want a second read, book 45 minutes here:\nhttps://calendar.app.google/hUtfPcRYZ8Zdm6JH6\n\nClark Schnase\nAnchor Enterprise · Executive AI Coaching\nclark@anchor-enterprise.com · anchor-enterprise.com`;
   const html = `
     <div style="margin:0;padding:0;background:#f5efe1;color:#1a2540;font-family:Inter,Arial,sans-serif;line-height:1.55;">
       <div style="max-width:640px;margin:0 auto;padding:32px 24px;">
         <p>Hi ${greetingNameHtml},</p>
-        <p>Here is the AI Proof Gap Checklist:</p>
+        <p>Here is the AI Pilot-to-Business-Case Checklist:</p>
         <p><a href="${url}" style="color:#9a8538;font-weight:600;">Open the checklist</a></p>
         <p>I attached a clean PDF version as well. Use it on one AI initiative, not your whole portfolio.</p>
-        <p>The useful part is not the score. It is the conversation it forces: who owns the risk, what proof would satisfy the business, and where the plan is still running on assumptions.</p>
+        <p>The score matters less than the conversation the questions force: who owns the risk, what proof would satisfy the business, and where the plan is still running on assumptions.</p>
         <p>If your answers expose a gap between the pilot and the business case, that is the right time to slow down and fix the operating model before the spend gets larger.</p>
         <p>If you want a second read, <a href="https://calendar.app.google/hUtfPcRYZ8Zdm6JH6" style="color:#9a8538;font-weight:600;">book 45 minutes here</a>.</p>
         <p style="margin-top:28px;">Clark Schnase<br>Anchor Enterprise · Executive AI Coaching<br><a href="mailto:clark@anchor-enterprise.com" style="color:#9a8538;">clark@anchor-enterprise.com</a> · <a href="https://anchor-enterprise.com" style="color:#9a8538;">anchor-enterprise.com</a></p>
