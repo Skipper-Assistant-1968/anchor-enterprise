@@ -123,6 +123,34 @@
 
     // --- Lead capture forms ---
     const params = new URLSearchParams(window.location.search);
+
+    function getFormValue(form, name) {
+        const field = form.querySelector(`[name="${name}"]`);
+        if (!field) return '';
+        if (field.type === 'checkbox') return field.checked ? field.value : '';
+        return field.value || '';
+    }
+
+    function buildLeadFallbackMailto(form) {
+        const formId = getFormValue(form, 'form_id') || 'website lead form';
+        const subject = `Anchor ${formId} request`;
+        const lines = [
+            'I tried to submit the Anchor website form, but the automated form path was unavailable.',
+            '',
+            `Name: ${getFormValue(form, 'full_name')}`,
+            `Work email: ${getFormValue(form, 'email')}`,
+            `Company: ${getFormValue(form, 'company')}`,
+            `Role/title: ${getFormValue(form, 'title')}`,
+            '',
+            'AI proof question:',
+            getFormValue(form, 'message'),
+            '',
+            `Page: ${getFormValue(form, 'landing_page') || window.location.href}`,
+            `Referrer: ${getFormValue(form, 'referrer') || document.referrer || ''}`,
+        ];
+        return `mailto:clark@anchor-enterprise.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
+    }
+
     document.querySelectorAll('form[data-lead-form]').forEach((form) => {
         const status = form.querySelector('[data-form-status]');
         const setHidden = (name, value) => {
@@ -159,7 +187,12 @@
                 if (status) status.textContent = 'Request received. Anchor will follow up shortly.';
             } catch (err) {
                 trackEvent('lead_form_error', { formId: String(formId) });
-                if (status) status.textContent = 'The form is temporarily unavailable. Please email clark@anchor-enterprise.com.';
+                trackEvent('lead_form_mailto_fallback', { formId: String(formId) });
+                const fallbackUrl = buildLeadFallbackMailto(form);
+                if (status) {
+                    status.innerHTML = 'The automated form is temporarily unavailable. Your email app should open with the request details filled in. If it does not, <a href="' + fallbackUrl + '">email Clark directly</a>.';
+                }
+                window.location.href = fallbackUrl;
             } finally {
                 if (button) button.disabled = false;
             }

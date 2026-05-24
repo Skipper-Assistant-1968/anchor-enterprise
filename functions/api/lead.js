@@ -116,7 +116,10 @@ export async function onRequestPost({ request, env }) {
   const body = JSON.stringify(payload);
   const headers = { 'content-type': 'application/json' };
   if (env.ANCHOR_LEAD_WEBHOOK_SECRET) {
-    headers['x-anchor-signature-sha256'] = await hmacHex(env.ANCHOR_LEAD_WEBHOOK_SECRET, body);
+    const signature = await hmacHex(env.ANCHOR_LEAD_WEBHOOK_SECRET, body);
+    headers['x-anchor-signature-sha256'] = signature;
+    headers['x-webhook-signature'] = signature;
+    headers['x-hub-signature-256'] = `sha256=${signature}`;
   }
 
   const upstream = await fetch(env.ANCHOR_LEAD_WEBHOOK_URL, {

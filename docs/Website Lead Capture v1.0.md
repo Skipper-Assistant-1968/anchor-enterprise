@@ -36,7 +36,8 @@ LinkedIn / referral / search traffic
    - Validates form submissions.
    - Blocks bot honeypot submissions.
    - Forwards the normalized lead payload to an ai-box/Hermes webhook when `ANCHOR_LEAD_WEBHOOK_URL` is configured.
-   - Optionally signs the forwarded payload with `ANCHOR_LEAD_WEBHOOK_SECRET`.
+   - Optionally signs the forwarded payload with `ANCHOR_LEAD_WEBHOOK_SECRET` using Anchor, generic webhook, and GitHub-compatible HMAC headers.
+   - If the backend path is unavailable, the browser falls back to a prefilled email to avoid losing a motivated prospect.
 
 4. **Lead-ops mapping**
    - Payload fields are shaped for `Ops/scripts/import_website_form.py`.
@@ -54,6 +55,7 @@ lead_magnet_click
 lead_form_submit
 lead_form_success
 lead_form_error
+lead_form_mailto_fallback
 ```
 
 Every event should include the page path and, where available, campaign/form/CTA metadata.
