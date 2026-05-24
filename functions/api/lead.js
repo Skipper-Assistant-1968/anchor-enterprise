@@ -96,23 +96,86 @@ function checklistUrl(request) {
   return new URL('/ai-proof-gap-checklist-download.html', request.url).toString();
 }
 
+function checklistPdfUrl(request) {
+  return new URL('/assets/ai-proof-gap-checklist.pdf', request.url).toString();
+}
+
+function firstName(fullName) {
+  const name = clean(fullName);
+  return name ? name.split(/\s+/)[0] : 'there';
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  }[char]));
+}
+
+function arrayBufferToBase64(buffer) {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+
+async function checklistAttachment(request) {
+  const response = await fetch(checklistPdfUrl(request));
+  if (!response.ok) {
+    return null;
+  }
+  const content = arrayBufferToBase64(await response.arrayBuffer());
+  return {
+    filename: 'AI Proof Gap Checklist - Anchor Enterprise.pdf',
+    content,
+  };
+}
+
 async function sendChecklistEmail(payload, request, env) {
   if (!env.RESEND_API_KEY || payload.form_id !== 'ai-proof-gap-checklist') {
     return false;
   }
 
   const url = checklistUrl(request);
-  const from = env.ANCHOR_TRANSACTIONAL_FROM || 'Anchor Enterprise <clark@anchor-enterprise.com>';
+  const pdfUrl = checklistPdfUrl(request);
+  const greetingName = firstName(payload.full_name);
+  const greetingNameHtml = escapeHtml(greetingName);
+  const from = env.ANCHOR_TRANSACTIONAL_FROM || 'Clark Schnase <clark@anchor-enterprise.com>';
   const subject = 'Your AI Proof Gap Checklist';
-  const text = `Hi ${payload.full_name || 'there'},\n\nHere is the AI Proof Gap Checklist:\n${url}\n\nUse it to pressure-test one AI use case against ownership, risk, workforce readiness, and business value proof.\n\nIf you want a senior-peer read on your answers, book a 20-minute call: https://calendar.app.google/hUtfPcRYZ8Zdm6JH6\n\n— Anchor Enterprise`;
+  const text = `Hi ${greetingName},\n\nHere is the AI Proof Gap Checklist:\n${url}\n\nI attached a clean PDF version as well. Use it on one AI initiative, not your whole portfolio.\n\nThe useful part is not the score. It is the conversation it forces: who owns the risk, what proof would satisfy the business, and where the plan is still running on assumptions.\n\nIf your answers expose a gap between the pilot and the business case, that is the right time to slow down and fix the operating model before the spend gets larger.\n\nIf you want a second read, book 45 minutes here:\nhttps://calendar.app.google/hUtfPcRYZ8Zdm6JH6\n\nClark Schnase\nAnchor Enterprise · Executive AI Coaching\nclark@anchor-enterprise.com · anchor-enterprise.com`;
   const html = `
-    <p>Hi ${payload.full_name || 'there'},</p>
-    <p>Here is the AI Proof Gap Checklist:</p>
-    <p><a href="${url}">Open the AI Proof Gap Checklist</a></p>
-    <p>Use it to pressure-test one AI use case against ownership, risk, workforce readiness, and business value proof.</p>
-    <p>If you want a senior-peer read on your answers, <a href="https://calendar.app.google/hUtfPcRYZ8Zdm6JH6">book a 20-minute call</a>.</p>
-    <p>— Anchor Enterprise</p>
+    <div style="margin:0;padding:0;background:#f5efe1;color:#1a2540;font-family:Inter,Arial,sans-serif;line-height:1.55;">
+      <div style="max-width:640px;margin:0 auto;padding:32px 24px;">
+        <p>Hi ${greetingNameHtml},</p>
+        <p>Here is the AI Proof Gap Checklist:</p>
+        <p><a href="${url}" style="color:#9a8538;font-weight:600;">Open the checklist</a></p>
+        <p>I attached a clean PDF version as well. Use it on one AI initiative, not your whole portfolio.</p>
+        <p>The useful part is not the score. It is the conversation it forces: who owns the risk, what proof would satisfy the business, and where the plan is still running on assumptions.</p>
+        <p>If your answers expose a gap between the pilot and the business case, that is the right time to slow down and fix the operating model before the spend gets larger.</p>
+        <p>If you want a second read, <a href="https://calendar.app.google/hUtfPcRYZ8Zdm6JH6" style="color:#9a8538;font-weight:600;">book 45 minutes here</a>.</p>
+        <p style="margin-top:28px;">Clark Schnase<br>Anchor Enterprise · Executive AI Coaching<br><a href="mailto:clark@anchor-enterprise.com" style="color:#9a8538;">clark@anchor-enterprise.com</a> · <a href="https://anchor-enterprise.com" style="color:#9a8538;">anchor-enterprise.com</a></p>
+        <p style="margin-top:24px;color:#3d4a66;font-size:13px;">PDF link, if the attachment does not come through: <a href="${pdfUrl}" style="color:#9a8538;">AI Proof Gap Checklist PDF</a></p>
+      </div>
+    </div>
   `;
+  const attachment = await checklistAttachment(request);
+  const email = {
+    from,
+    to: payload.email,
+    subject,
+    text,
+    html,
+    reply_to: 'clark@anchor-enterprise.com',
+  };
+  if (attachment) {
+    email.attachments = [attachment];
+  }
 
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -120,14 +183,7 @@ async function sendChecklistEmail(payload, request, env) {
       authorization: `Bearer ${env.RESEND_API_KEY}`,
       'content-type': 'application/json',
     },
-    body: JSON.stringify({
-      from,
-      to: payload.email,
-      subject,
-      text,
-      html,
-      reply_to: 'clark@anchor-enterprise.com',
-    }),
+    body: JSON.stringify(email),
   });
 
   return response.ok;
