@@ -96,8 +96,16 @@ function checklistUrl(request) {
   return new URL('/ai-proof-gap-checklist-download.html', request.url).toString();
 }
 
+function agentChecklistUrl(request) {
+  return new URL('/ai-agent-management-checklist-download.html', request.url).toString();
+}
+
 function checklistPdfUrl(request) {
   return new URL('/assets/ai-proof-gap-checklist.pdf', request.url).toString();
+}
+
+function agentChecklistPdfUrl(request) {
+  return new URL('/assets/ai-agent-management-checklist.pdf', request.url).toString();
 }
 
 function firstName(fullName) {
@@ -138,18 +146,48 @@ async function checklistAttachment(request) {
 }
 
 async function sendChecklistEmail(payload, request, env) {
-  if (!env.RESEND_API_KEY || payload.form_id !== 'ai-proof-gap-checklist') {
+  if (!env.RESEND_API_KEY) {
     return false;
   }
 
-  const url = checklistUrl(request);
-  const pdfUrl = checklistPdfUrl(request);
+  const formId = payload.form_id;
+  const isAgentChecklist = formId === 'ai-agent-management-checklist';
+  const isProofGapChecklist = formId === 'ai-proof-gap-checklist';
+
+  if (!isAgentChecklist && !isProofGapChecklist) {
+    return false;
+  }
+
+  const url = isAgentChecklist ? agentChecklistUrl(request) : checklistUrl(request);
+  const pdfUrl = isAgentChecklist ? agentChecklistPdfUrl(request) : checklistPdfUrl(request);
   const greetingName = firstName(payload.full_name);
   const greetingNameHtml = escapeHtml(greetingName);
   const from = env.ANCHOR_TRANSACTIONAL_FROM || 'Clark Schnase <clark@anchor-enterprise.com>';
-  const subject = 'Your AI Pilot-to-Business-Case Checklist';
-  const text = `Hi ${greetingName},\n\nHere is the AI Pilot-to-Business-Case Checklist:\n${url}\n\nI attached a clean PDF version as well. Use it on one AI initiative, not your whole portfolio.\n\nThe score matters less than the conversation the questions force: who owns the risk, what proof would satisfy the business, and where the plan is still running on assumptions.\n\nIf your answers expose a gap between the pilot and the business case, that is the right time to slow down and fix the operating model before the spend gets larger.\n\nIf you want a second read, book 45 minutes here:\nhttps://calendar.app.google/hUtfPcRYZ8Zdm6JH6\n\nClark Schnase\nAnchor Enterprise · Executive AI Coaching\nclark@anchor-enterprise.com · anchor-enterprise.com`;
-  const html = `
+
+  let subject, text, html;
+
+  if (isAgentChecklist) {
+    subject = 'Your AI Agent Management Checklist';
+    text = `Hi ${greetingName},\n\nHere is the AI Agent Management Checklist:\n${url}\n\nI attached a clean PDF version as well. Use it on one agent this week, not your whole fleet.\n\nThe checklist matters most when it forces a conversation: who owns this agent, what happens when it misbehaves, and whether the agent is still serving the purpose it was built for.\n\nIf your answers expose a gap between how your agents are running and how they should be governed, that is the right time to fix the management framework before the gap becomes an incident.\n\nIf you want a second read, book 45 minutes here:\nhttps://calendar.app.google/hUtfPcRYZ8Zdm6JH6\n\nClark Schnase\nAnchor Enterprise · Executive AI Coaching\nclark@anchor-enterprise.com · anchor-enterprise.com`;
+    html = `
+    <div style="margin:0;padding:0;background:#f5efe1;color:#1a2540;font-family:Inter,Arial,sans-serif;line-height:1.55;">
+      <div style="max-width:640px;margin:0 auto;padding:32px 24px;">
+        <p>Hi ${greetingNameHtml},</p>
+        <p>Here is the AI Agent Management Checklist:</p>
+        <p><a href="${url}" style="color:#9a8538;font-weight:600;">Open the checklist</a></p>
+        <p>I attached a clean PDF version as well. Use it on one agent this week, not your whole fleet.</p>
+        <p>The checklist matters most when it forces a conversation: who owns this agent, what happens when it misbehaves, and whether the agent is still serving the purpose it was built for.</p>
+        <p>If your answers expose a gap between how your agents are running and how they should be governed, that is the right time to fix the management framework before the gap becomes an incident.</p>
+        <p>If you want a second read, <a href="https://calendar.app.google/hUtfPcRYZ8Zdm6JH6" style="color:#9a8538;font-weight:600;">book 45 minutes here</a>.</p>
+        <p style="margin-top:28px;">Clark Schnase<br>Anchor Enterprise · Executive AI Coaching<br><a href="mailto:clark@anchor-enterprise.com" style="color:#9a8538;">clark@anchor-enterprise.com</a> · <a href="https://anchor-enterprise.com" style="color:#9a8538;">anchor-enterprise.com</a></p>
+        <p style="margin-top:24px;color:#3d4a66;font-size:13px;">PDF link, if the attachment does not come through: <a href="${pdfUrl}" style="color:#9a8538;">AI Agent Management Checklist PDF</a></p>
+      </div>
+    </div>
+  `;
+  } else {
+    subject = 'Your AI Pilot-to-Business-Case Checklist';
+    text = `Hi ${greetingName},\n\nHere is the AI Pilot-to-Business-Case Checklist:\n${url}\n\nI attached a clean PDF version as well. Use it on one AI initiative, not your whole portfolio.\n\nThe score matters less than the conversation the questions force: who owns the risk, what proof would satisfy the business, and where the plan is still running on assumptions.\n\nIf your answers expose a gap between the pilot and the business case, that is the right time to slow down and fix the operating model before the spend gets larger.\n\nIf you want a second read, book 45 minutes here:\nhttps://calendar.app.google/hUtfPcRYZ8Zdm6JH6\n\nClark Schnase\nAnchor Enterprise · Executive AI Coaching\nclark@anchor-enterprise.com · anchor-enterprise.com`;
+    html = `
     <div style="margin:0;padding:0;background:#f5efe1;color:#1a2540;font-family:Inter,Arial,sans-serif;line-height:1.55;">
       <div style="max-width:640px;margin:0 auto;padding:32px 24px;">
         <p>Hi ${greetingNameHtml},</p>
@@ -164,7 +202,21 @@ async function sendChecklistEmail(payload, request, env) {
       </div>
     </div>
   `;
-  const attachment = await checklistAttachment(request);
+  }
+
+  let attachment = null;
+  if (isAgentChecklist) {
+    const response = await fetch(agentChecklistPdfUrl(request));
+    if (response.ok) {
+      const content = arrayBufferToBase64(await response.arrayBuffer());
+      attachment = {
+        filename: 'AI Agent Management Checklist - Anchor Enterprise.pdf',
+        content,
+      };
+    }
+  } else {
+    attachment = await checklistAttachment(request);
+  }
   const email = {
     from,
     to: payload.email,
@@ -232,6 +284,9 @@ export async function onRequestPost({ request, env }) {
   const response = { ok: true, queued: true };
   if (payload.form_id === 'ai-proof-gap-checklist') {
     response.download_url = '/ai-proof-gap-checklist-download.html';
+    response.email_sent = await sendChecklistEmail(payload, request, env);
+  } else if (payload.form_id === 'ai-agent-management-checklist') {
+    response.download_url = '/ai-agent-management-checklist-download.html';
     response.email_sent = await sendChecklistEmail(payload, request, env);
   }
   return jsonResponse(response);

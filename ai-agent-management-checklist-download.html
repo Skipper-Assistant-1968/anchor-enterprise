@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Management Checklist | Anchor Enterprise</title>
+    <meta name="description" content="A practical weekly review for managing AI agents with workforce discipline: identity, boundaries, performance, escalation, and retirement.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/png" href="assets/anchor-mark.png">
+    <link rel="apple-touch-icon" href="assets/anchor-mark.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DP552GE7VP"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-DP552GE7VP');
+    </script>
+</head>
+<body>
+    <nav class="nav scrolled" id="nav">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo" aria-label="Anchor Enterprise home">
+                <img src="assets/anchor-mark.png" alt="" class="nav-logo-mark">
+                <span class="nav-logo-text">Anchor Enterprise</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html#about">About</a>
+                <a href="index.html#services">Services</a>
+                <a href="logbook.html">Logbook</a>
+                <a href="https://calendar.app.google/hUtfPcRYZ8Zdm6JH6" target="_blank" rel="noopener" class="nav-cta" data-track-event="book_call_click" data-track-prop-cta="nav">Book a 45-minute call</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="lead-magnet-page">
+        <section class="section lead-magnet-hero">
+            <div class="container">
+                <div class="lead-magnet-copy reveal visible" style="max-width: 880px;">
+                    <span class="hero-eyebrow">AI Operations</span>
+                    <h1 class="hero-title">AI Agent Management Checklist</h1>
+                    <hr class="rule">
+                    <p class="hero-sub">A practical weekly review for directors and EVPs who need to manage AI agents with the same discipline they apply to human staff.</p>
+                    <p><a href="assets/ai-agent-management-checklist.pdf" class="btn btn-primary" data-track-event="checklist_pdf_click" data-track-prop-form="ai-agent-management-checklist">Download the formatted PDF</a></p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container article-body" style="max-width: 880px;">
+                <p class="lead">Run this checklist weekly for every agent in production. The goal is not bureaucracy. It is to catch the drift between what an agent was supposed to do and what it is actually doing before that drift becomes an incident.</p>
+
+                <h2>1. Agent identity and role</h2>
+                <p>Every agent needs a job description, not just a prompt. If you cannot describe what this agent does in one sentence that a new manager would understand, the agent is not defined tightly enough.</p>
+                <ol>
+                    <li><strong>Who is the named owner of this agent?</strong><br>Not the team. Not the department. One person who is accountable when the agent misbehaves.</li>
+                    <li><strong>What is this agent's purpose in one sentence?</strong><br>Example: "This agent drafts first responses to Tier 1 support tickets and suggests escalation paths for Tier 2."</li>
+                    <li><strong>What is this agent explicitly not allowed to do?</strong><br>Boundaries matter more than capabilities. Name the forbidden actions.</li>
+                </ol>
+
+                <h2>2. Permissions and data boundaries</h2>
+                <p>An agent with access to everything is an agent with accountability for nothing. Define what it can read, what it can write, and what requires human approval.</p>
+                <ol start="4">
+                    <li><strong>What data sources can this agent access?</strong><br>List the systems, databases, documents, and APIs. If the list is "whatever it finds," that is a problem.</li>
+                    <li><strong>What systems can this agent write to or trigger actions in?</strong><br>Reading is lower risk than writing. Writing is lower risk than triggering workflows. Know which yours does.</li>
+                    <li><strong>What actions require explicit human approval before execution?</strong><br>Refunds, account changes, legal communications, financial transactions, personnel decisions. Name them.</li>
+                </ol>
+
+                <h2>3. Performance and quality</h2>
+                <p>You would not manage a human employee without defining good work. Do not manage an agent that way either.</p>
+                <ol start="7">
+                    <li><strong>What does "good output" look like for this agent?</strong><br>Define the standard in terms a reviewer can apply without guessing. Examples: accuracy rate, tone match, completeness, compliance with policy.</li>
+                    <li><strong>When did we last review a sample of this agent's outputs?</strong><br>Weekly for new agents. Biweekly for mature agents. Monthly is the maximum gap.</li>
+                    <li><strong>How many errors, complaints, or escalations did this agent generate this week?</strong><br>Track the trend, not just the count. Three errors this week after zero last week is a signal.</li>
+                </ol>
+
+                <h2>4. Review cadence</h2>
+                <p>Agents need management attention, not just monitoring dashboards. Schedule the review and decide what happens in it.</p>
+                <ol start="10">
+                    <li><strong>Is there a recurring calendar invite to review this agent's performance?</strong><br>If the review is not scheduled, it will not happen.</li>
+                    <li><strong>Who attends the review?</strong><br>The agent owner, a domain expert who can judge output quality, and someone who can fix the agent if it needs changes.</li>
+                    <li><strong>What decisions get made in the review?</strong><br>Prompt changes, permission changes, model swaps, retirement. If no decisions are possible, the review is theater.</li>
+                </ol>
+
+                <h2>5. Escalation and exceptions</h2>
+                <p>When an agent produces unexpected output, someone needs to know and someone needs to act. Define the path before the exception happens.</p>
+                <ol start="13">
+                    <li><strong>What happens when this agent produces output outside its defined boundaries?</strong><br>Log, alert, block, or escalate. Pick one and document it.</li>
+                    <li><strong>Who is notified when the agent fails or behaves unexpectedly?</strong><br>Name the person and the channel. "The team" is not specific enough.</li>
+                    <li><strong>What is the rollback or shutdown procedure?</strong><br>How do you stop this agent quickly without breaking the workflow it supports?</li>
+                </ol>
+
+                <h2>6. Lifecycle and retirement</h2>
+                <p>Agents do not last forever. They get outdated, replaced, or retired. Know when to end an agent's tenure.</p>
+                <ol start="16">
+                    <li><strong>When was this agent last updated?</strong><br>Stale agents produce stale output. If the last update was more than 30 days ago, review whether the agent is still current.</li>
+                    <li><strong>Is this agent still serving its original purpose?</strong><br>Scope creep is common. An agent that started drafting emails should not be negotiating contracts without explicit reauthorization.</li>
+                    <li><strong>What is the retirement criteria?</strong><br>Define the conditions under which this agent should be shut down: accuracy drops below X, a better tool becomes available, the workflow changes, or the risk profile shifts.</li>
+                </ol>
+
+                <div class="cta-section" style="margin-top: 3rem;">
+                    <span class="cta-eyebrow">Next step</span>
+                    <h2>Need a function-level read on your agent management?</h2>
+                    <p>If this checklist exposes gaps between how your agents are running and how they should be governed, book 45 minutes with Clark to pressure-test one agent's management framework before the gap becomes an incident.</p>
+                    <a href="https://calendar.app.google/hUtfPcRYZ8Zdm6JH6" target="_blank" rel="noopener" class="btn btn-primary" data-track-event="book_call_click" data-track-prop-cta="checklist_download">Book a 45-minute call</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-inner">
+                <div class="footer-brand">
+                    <img src="assets/anchor-wordmark-tight.png" alt="Anchor Enterprise">
+                </div>
+                <div class="footer-links">
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Service</a>
+                </div>
+                <div class="footer-contact">
+                    <a href="tel:+142****9022" data-track-event="phone_click" data-track-prop-cta="footer">(425) 331-9022</a>
+                    <a href="mailto:clark@anchor-enterprise.com" data-track-event="email_click" data-track-prop-cta="footer">clark@anchor-enterprise.com</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Anchor Enterprise. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>
